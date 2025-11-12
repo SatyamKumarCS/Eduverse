@@ -1,7 +1,7 @@
 import type {Request,Response} from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import prisma from '../lib/prisma.ts';
+import prisma from '../lib/prisma';
 
 
 

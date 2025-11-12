@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { signup, login } from "../controllers/authController.ts";
+import { signup, login } from "../controllers/authController";
+import { aj } from "../lib/arcjet";
 
 const router:Router=Router()
 router.post('/signup',signup)

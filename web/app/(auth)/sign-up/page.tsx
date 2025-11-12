@@ -20,6 +20,8 @@ import {
   ArrowLeft,
   GraduationCap,
   Award,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
@@ -30,6 +32,8 @@ import { signupApi } from "@/lib/api";
 export default function Signup() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -47,6 +51,30 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    if (formData.password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return;
+    }
+    if (
+      !/[A-Z]/.test(formData.password) ||
+      !/[a-z]/.test(formData.password) ||
+      !/[0-9]/.test(formData.password)
+    ) {
+      toast.error(
+        "Password must contain uppercase, lowercase letters, and numbers"
+      );
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
     setLoading(true);
     const result = await signupApi(formData);
     console.log(result);
@@ -218,7 +246,7 @@ export default function Signup() {
                   <Input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) =>
@@ -227,6 +255,13 @@ export default function Signup() {
                     className="pl-10 bg-background border-border hover:border-primary/50 focus:border-primary transition-colors"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   At least 8 characters with uppercase, lowercase, and numbers
@@ -245,7 +280,7 @@ export default function Signup() {
                   <Input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type="password"
+                    type={showPasswordConfirm ? "text":"password"}
                     placeholder="••••••••"
                     value={formData.confirmPassword}
                     onChange={(e) =>
@@ -257,6 +292,13 @@ export default function Signup() {
                     className="pl-10 bg-background border-border hover:border-primary/50 focus:border-primary transition-colors"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showPasswordConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
 
