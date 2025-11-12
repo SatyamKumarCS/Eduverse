@@ -3,6 +3,10 @@
 A full-featured Learning Management System (LMS) designed to make online education seamless for students, instructors, and administrators.
 This project enables course creation, content delivery, student enrollment, progress tracking, and more — all in one platform.
 
+Frontend Link= https://eduverse-dun-two.vercel.app
+Backend Link= https://eduverse-r9ik.onrender.com
+DB_Link= https://console.neon.tech/app/projects/summer-mouse-19362962/branches/br-young-breeze-a1wlvn7q/tables
+
 🚀 Features
 👨‍🏫 For Instructors
 
