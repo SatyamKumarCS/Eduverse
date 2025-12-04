@@ -1,4 +1,3 @@
-import {clerkClient} from '@clerk/express'
 import Course from '../models/Course.js'
 import {v2 as cloudinary} from 'cloudinary'
 import { Purchase } from '../models/Purchase.js'
@@ -10,11 +9,13 @@ export const updateRoleToEducator = async (req,res)=>{
     try {
         const userId = req.auth.userId
 
-        await clerkClient.users.updateUserMetadata(userId, {
-            publicMetadata:{
-                role: 'educator',
-            }
-        })
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' });
+        }
+
+        user.role = 'educator';
+        await user.save();
 
         res.json({success: true, message: 'You can publish a course now'})
 

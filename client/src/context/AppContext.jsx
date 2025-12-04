@@ -2,7 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import { dummyCourses } from "../assets/assets";
 import { data, useNavigate } from "react-router-dom";
 import humanizeDuration from "humanize-duration"
-import { useAuth, useUser } from '@clerk/clerk-react'
+import { useAuth } from "./AuthContext";
 import axios from 'axios'
 import { toast } from 'react-toastify';
 export const AppContext = createContext()
@@ -14,8 +14,7 @@ export const AppContextProvider = (props) => {
     const currency = import.meta.env.VITE_CURRENCY || '$';
     const navigate = useNavigate();
 
-    const { getToken } = useAuth();
-    const { user } = useUser()
+    const { user, token, getToken } = useAuth();
 
     const [allCourses, setAllCourses] = useState([])
     const [isEducator, setIsEducator] = useState(false)
@@ -41,14 +40,14 @@ export const AppContextProvider = (props) => {
     // fetch user data
     const fetchUserData = async () => {
 
-        if (user && user.publicMetadata && user.publicMetadata.role === 'educator') {
+        if (user && user.role === 'educator') {
             setIsEducator(true);
         }
 
         try {
-            const token = await getToken();
+            const currentToken = getToken();
 
-            const { data } = await axios.get(backendUrl + '/api/user/data', { headers: { Authorization: `Bearer ${token}` } })
+            const { data } = await axios.get(backendUrl + '/api/user/data', { headers: { Authorization: `Bearer ${currentToken}` } })
 
             if (data.success) {
                 setUserData(data.user)
@@ -144,9 +143,9 @@ export const AppContextProvider = (props) => {
 
     const fetchUserEnrolledCourses = async () => {
         try {
-            const token = await getToken();
+            const currentToken = getToken();
             const response = await axios.get(backendUrl + "/api/user/enrolled-courses", {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${currentToken}` }
             });
 
             // console.log("Response:", response); // Debugging: Log full response
@@ -191,6 +190,10 @@ export const AppContextProvider = (props) => {
             fetchUserData()
             // logToken()
             fetchUserEnrolledCourses()
+            // Check if user is educator
+            if (user.role === 'educator') {
+                setIsEducator(true);
+            }
         }
     }, [user])
 

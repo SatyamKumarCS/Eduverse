@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { assets } from "../../assets/assets";
 import { Link } from "react-router-dom";
-import { useClerk, UserButton, useUser } from "@clerk/clerk-react";
+import { useAuth } from "../../context/AuthContext";
 import { AppContext } from "../../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -12,8 +12,7 @@ const Navbar = () => {
 
 	const isCourseListPage = location.pathname.includes("/course-list");
 	const {navigate, isEducator, backendUrl, setIsEducator, getToken} = useContext(AppContext);
-	const { openSignIn } = useClerk();
-	const { user } = useUser();
+	const { user, logout } = useAuth();
 
 	const becomeEducator = async () => {
 		try {
@@ -22,10 +21,9 @@ const Navbar = () => {
 				return;
 			}
 
-			const token = await getToken();
+			const token = getToken();
 
 			const {data} = await axios.get(backendUrl + '/api/educator/update-role' , {headers: {Authorization: `Bearer ${token}`}})
-			console.log("educ", data);
 			
 			if(data.success){
 				setIsEducator(true);
@@ -63,14 +61,37 @@ const Navbar = () => {
 				</div>
 
 				{user ? (
-					<UserButton />
+					<div className="flex items-center gap-3">
+						<div className="flex items-center gap-2">
+							<img 
+								src={user.imageUrl || assets.user_icon} 
+								alt={user.name} 
+								className="w-8 h-8 rounded-full object-cover"
+							/>
+							<span className="text-sm">{user.name}</span>
+						</div>
+						<button
+							onClick={logout}
+							className="bg-red-500 text-white px-4 py-1.5 rounded-full text-sm hover:bg-red-600"
+						>
+							Logout
+						</button>
+					</div>
 				) : (
-					<button
-						onClick={() => openSignIn()}
-						className="bg-blue-600 text-white px-5 py-2 rounded-full"
-					>
-						Create Account
-					</button>
+					<div className="flex items-center gap-3">
+						<button
+							onClick={() => navigate('/login')}
+							className="text-gray-600 hover:text-gray-800"
+						>
+							Login
+						</button>
+						<button
+							onClick={() => navigate('/register')}
+							className="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700"
+						>
+							Create Account
+						</button>
+					</div>
 				)}
 			</div>
 			<div className="md:hidden flex items-center gap-2 sm:gap-5 text-gray-500">
@@ -85,10 +106,25 @@ const Navbar = () => {
 					)}
 				</div>
         {
-          user ? <UserButton/> :
-				<button onClick={()=>openSignIn()}>
-					<img src={assets.user_icon} alt="" />
+          user ? (
+			<div className="flex items-center gap-2">
+				<img 
+					src={user.imageUrl || assets.user_icon} 
+					alt={user.name} 
+					className="w-8 h-8 rounded-full object-cover"
+				/>
+				<button
+					onClick={logout}
+					className="text-xs bg-red-500 text-white px-2 py-1 rounded"
+				>
+					Logout
 				</button>
+			</div>
+		  ) : (
+			<button onClick={()=>navigate('/login')}>
+				<img src={assets.user_icon} alt="" />
+			</button>
+		  )
         }
 			</div>
 		</div>

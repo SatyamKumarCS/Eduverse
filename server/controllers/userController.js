@@ -3,29 +3,15 @@ import Course from "../models/Course.js"
 import { Purchase } from "../models/Purchase.js"
 import User from "../models/User.js"
 import { CourseProgress } from "../models/CourseProgress.js"
-import { clerkClient } from "@clerk/express"
 
 // Get users data
 export const getUserData = async (req, res) => {
     try {
         const userId = req.auth.userId;
-        let user = await User.findById(userId);
+        let user = await User.findById(userId).select('-password');
         
         if (!user) {
-            // If user doesn't exist, create one using Clerk data
-            try {
-                const clerkUser = await clerkClient.users.getUser(userId);
-                const userData = {
-                    _id: clerkUser.id,
-                    email: clerkUser.emailAddresses[0].emailAddress,
-                    name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'User',
-                    imageUrl: clerkUser.imageUrl || '',
-                    enrolledCourses: []
-                };
-                user = await User.create(userData);
-            } catch (clerkError) {
-                return res.json({ success: false, message: "User not found and could not be created!" });
-            }
+            return res.json({ success: false, message: "User not found!" });
         }
 
         return res.json({ success: true, user });
@@ -41,21 +27,7 @@ export const userEnrolledCourses = async (req, res) => {
         let userData = await User.findById(userId).populate('enrolledCourses');
 
         if (!userData) {
-            // If user doesn't exist, create one using Clerk data
-            try {
-                const clerkUser = await clerkClient.users.getUser(userId);
-                const newUserData = {
-                    _id: clerkUser.id,
-                    email: clerkUser.emailAddresses[0].emailAddress,
-                    name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'User',
-                    imageUrl: clerkUser.imageUrl || '',
-                    enrolledCourses: []
-                };
-                userData = await User.create(newUserData);
-                // For newly created user, enrolledCourses will be empty array
-            } catch (clerkError) {
-                return res.json({ success: false, message: "User not found and could not be created!" });
-            }
+            return res.json({ success: false, message: "User not found!" });
         }
 
         return res.json({ success: true, enrolledCourses: userData.enrolledCourses || [] });
@@ -75,20 +47,7 @@ export const purchaseCourse = async (req, res) => {
         const courseData = await Course.findById(courseId);
 
         if (!userData) {
-            // If user doesn't exist, create one using Clerk data
-            try {
-                const clerkUser = await clerkClient.users.getUser(userId);
-                const newUserData = {
-                    _id: clerkUser.id,
-                    email: clerkUser.emailAddresses[0].emailAddress,
-                    name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'User',
-                    imageUrl: clerkUser.imageUrl || '',
-                    enrolledCourses: []
-                };
-                userData = await User.create(newUserData);
-            } catch (clerkError) {
-                return res.json({ success: false, message: "User not found and could not be created!" });
-            }
+            return res.json({ success: false, message: "User not found!" });
         }
 
         if (!courseData) {

@@ -1,4 +1,4 @@
-import { Route, Routes, useMatch } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/student/Home'
 import CoursesList from './pages/student/CoursesList'
 import CourseDetails from './pages/student/CourseDetails'
@@ -15,19 +15,22 @@ import "quill/dist/quill.snow.css";
 import { ToastContainer } from 'react-toastify';
 import About from './components/About'
 import ContactForm from './components/ContactForm'
+import Login from './pages/student/Login'
+import Register from './pages/student/Register'
 
 
 const App = () => {
 
-
-  const isEducatorRoute = useMatch('/educator/*')
+  const location = useLocation()
+  const isEducatorRoute = location.pathname.startsWith('/educator')
+  const isAuthRoute = location.pathname === '/login' || location.pathname === '/register'
 
 
 
   return (
     <div className='text-default min-h-screen bg-white'>
       <ToastContainer />
-      {!isEducatorRoute &&<Navbar/> }
+      {!isEducatorRoute && !isAuthRoute && <Navbar/> }
       
       <Routes>
         <Route path='/' element={<Home/>} />
@@ -40,6 +43,9 @@ const App = () => {
 
         <Route path='/about' element={<About/>} />
         <Route path='/contact' element={<ContactForm/>} />
+
+        <Route path='/login' element={<Login/>} />
+        <Route path='/register' element={<Register/>} />
 
 
         <Route path='/educator' element={ <Educator />} >

@@ -1,11 +1,11 @@
 import React from "react";
 import Footer from "./student/Footer";
-import { useClerk, useUser } from "@clerk/clerk-react";
-import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 
 const About = () => {
-	const { user } = useUser();
-	const { openSignIn } = useClerk();
+	const { user } = useAuth();
+	const navigate = useNavigate();
 	
 	return (
 		<>
@@ -73,10 +73,10 @@ const About = () => {
 					</p>
 
 					{user ? (
-						<Link to="/" className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"> Get Startd</Link>
+						<Link to="/" className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"> Get Started</Link>
 					) : (
 						<button
-							onClick={() => openSignIn()}
+							onClick={() => navigate('/register')}
 							className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
 						>
 							Get Started
