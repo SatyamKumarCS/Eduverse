@@ -13,37 +13,35 @@ import authRouter from '../routes/authRoutes.js';
 // initialize express 
 const app = express();
 
-
 // connect to db
-const connections = async () => {
-    await connectDB();
-    await connectCloudinay();
-}
+let isConnected = false;
 
-connections();
+const connectToServices = async () => {
+    if (!isConnected) {
+        await connectDB();
+        await connectCloudinay();
+        isConnected = true;
+    }
+}
 
 // middleware
 app.use(cors({
     origin: "*",
 }));
 
+// Connect before handling requests
+app.use(async (req, res, next) => {
+    await connectToServices();
+    next();
+});
 
 // Routes
-app.get('/', (req,res)=>{res.send("Edemy API is working fine!")})
+app.get('/', (req, res) => { res.send("Edemy API is working fine!") })
+app.get('/api', (req, res) => { res.send("Edemy API is working fine!") })
 app.use('/api/auth', express.json(), authRouter);
 app.use('/api/educator', express.json(), educatorRouter);
 app.use('/api/course', express.json(), courseRouter);
 app.use('/api/user', express.json(), protectRoute, userRouter);
-app.post('/stripe', express.raw({type: 'application/json'}), stripeWebhooks);
-
-
-
-// port
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, ()=> {
-    console.log(`Server is running on ${PORT}`);
-    
-})
+app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
 
 export default app;
